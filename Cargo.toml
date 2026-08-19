@@ -4,3 +4,8 @@ version = "0.1.0"
 edition = "2024"
 
 [dependencies]
+chrono = "0.4.45"
+fern = "0.7.1"
+glob = "0.3.4"
+log = "0.4.33"
+native-dialog = "0.9.7"
