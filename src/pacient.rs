@@ -1,7 +1,6 @@
-use std::fs::{metadata, File};
-use std::io::{Read, Seek, SeekFrom};
 use native_dialog::{DialogBuilder, MessageLevel};
-
+use std::fs::{File, metadata};
+use std::io::{Read, Seek, SeekFrom};
 
 #[derive(Debug)]
 pub struct Pacient {
@@ -38,27 +37,26 @@ impl Pacient {
                     .show()
                     .unwrap();
                 return;
-            },
+            }
         };
         self.file_name = fname.to_str().unwrap().to_string();
 
-        let len_file: u32= metadata(fname).unwrap().len() as u32;
+        let len_file: u32 = metadata(fname).unwrap().len() as u32;
         let num_of_samples = (len_file - 1024) / 6;
         let (d, h, m, s) = self.get_time_from_samples(num_of_samples);
-        let sum_hours = d * 24 + h;
-        self.total_time = (sum_hours, m, s);
+        let s = s % 60;
+        let m = m % 60;
+        self.total_time = (h, m, s);
     }
 
     pub fn get_time_from_samples(&self, num_of_samples: u32) -> (u32, u32, u32, u32) {
-        let mut s = num_of_samples / 250;
-        let mut m = s / 60;
-        s = s % 60;
-
-        let mut h = m / 60;
-        m = m % 60;
-
+        let s = num_of_samples / 250;
+        let m = s / 60;
+        // s = s % 60;
+        let h = m / 60;
+        // m = m % 60;
         let d = h / 24;
-        h = h % 24;
+        // h = h % 24;
         (d, h, m, s)
     }
 
@@ -93,7 +91,7 @@ impl Pacient {
             let start_s = start_s0 * 10 + start_s1;
 
             self.start_time = (start_h, start_m, start_s);
-            self.start_time_in_samples = ((start_h * 3600 + start_m * 60 + start_s) * 250) as usize;            
+            self.start_time_in_samples = ((start_h * 3600 + start_m * 60 + start_s) * 250) as usize;
         } else {
             file.seek(SeekFrom::Start(150)).unwrap();
             let mut start_h = [0u8; 2];
@@ -124,6 +122,6 @@ impl Pacient {
 
             self.start_time = (start_h, start_m, start_s);
             self.start_time_in_samples = ((start_h * 3600 + start_m * 60 + start_s) * 250) as usize;
-        }      
+        }
     }
 }

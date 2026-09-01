@@ -30,10 +30,8 @@ impl Zubp {
             let len_pr: i32 = (time_param.intervals[*ind] * coef) as i32; // *0.45
             let start = (time_param.r_pos[*ind] - len_pr) as usize;
             let stop = (time_param.r_pos[*ind] - 10) as usize;
-            if start > 20000000 {
-                // if start > time_param.r_pos[time_param.r_pos.len() - 1] as usize {
-                break;
-            }
+            debug!("start, stop: {}, {}", start, stop);
+
             let fragment = lead[start..stop].to_vec();
             let (amp_p, ind_p) = self.get_amp_ind_p(&fragment);
             let pr = len_pr - ind_p as i32;
@@ -45,6 +43,7 @@ impl Zubp {
                 vec_amp_p.push(amp_p);
             }
         }
+        debug!("for vec_amp_p ok");
         if vec_amp_p.is_empty() {
             self.mean_amp_p = 0.0;
         } else {
@@ -52,9 +51,14 @@ impl Zubp {
             let count = vec_amp_p.len() as f32;
             self.mean_amp_p = sum / count;
         }
+        debug!("mean_amp_p ok");
+        debug!("self.intervals_pr_len = {}", &self.intervals_pr.len());
         self.intervals_pr = median_filter(&self.intervals_pr, 59); // 19
+        debug!("median_filter");
         self.interp_pr(time_param);
+        debug!("interp_pr");
         self.clean_presence_pr();
+        debug!("clean_presence_pr");
     }
 
     fn get_amp_ind_p(&mut self, fragment: &Vec<f32>) -> (f32, usize) {
@@ -111,8 +115,8 @@ impl Zubp {
                     p[i] = 1.0;
                 } else {
                     let (amp_p, _ind_p) = self.get_amp_ind_p(&fragment);
-                    if amp_p > self.mean_amp_p * 0.2 {
-                        //0.12
+                    if amp_p > self.mean_amp_p * 0.3 {
+                        //0.2
                         p[i] = 1.0;
                     }
                 }

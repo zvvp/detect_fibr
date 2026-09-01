@@ -9,3 +9,6 @@ fern = "0.7.1"
 glob = "0.3.4"
 log = "0.4.33"
 native-dialog = "0.9.7"
+fltk = {version="1.4", features=["fltk-bundled"]}
+fltk-theme = "0.7.9"
+npy-writer = "0.1.2"
