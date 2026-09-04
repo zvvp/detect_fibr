@@ -74,8 +74,8 @@ impl Leads {
         let t_1 = thread::spawn(|| {
             ch_1 = multi_thread_func!(cut_impuls, &ch_1);
             ch_1 = multi_thread_func!(cut_impuls, &ch_1);
-            ch_1 = multi_thread_func!(clean_ch, &ch_1);
-            ch_1 = multi_thread_func!(filter_lp_35d0, &ch_1);
+            // ch_1 = multi_thread_func!(clean_ch, &ch_1);
+            // ch_1 = multi_thread_func!(filter_lp_35d0, &ch_1);
             ch_1 = multi_thread_func!(del_isoline, &ch_1);
             ch_1
         });
@@ -83,8 +83,8 @@ impl Leads {
         let t_2 = thread::spawn(|| {
             ch_2 = multi_thread_func!(cut_impuls, &ch_2);
             ch_2 = multi_thread_func!(cut_impuls, &ch_2);
-            ch_2 = multi_thread_func!(clean_ch, &ch_2);
-            ch_2 = multi_thread_func!(filter_lp_35d0, &ch_2);
+            // ch_2 = multi_thread_func!(clean_ch, &ch_2);
+            // ch_2 = multi_thread_func!(filter_lp_35d0, &ch_2);
             ch_2 = multi_thread_func!(del_isoline, &ch_2);
             ch_2
         });
@@ -92,8 +92,8 @@ impl Leads {
         let t_3 = thread::spawn(|| {
             ch_3 = multi_thread_func!(cut_impuls, &ch_3);
             ch_3 = multi_thread_func!(cut_impuls, &ch_3);
-            ch_3 = multi_thread_func!(clean_ch, &ch_3);
-            ch_3 = multi_thread_func!(filter_lp_35d0, &ch_3);
+            // ch_3 = multi_thread_func!(clean_ch, &ch_3);
+            // ch_3 = multi_thread_func!(filter_lp_35d0, &ch_3);
             ch_3 = multi_thread_func!(del_isoline, &ch_3);
             ch_3
         });
@@ -319,7 +319,7 @@ pub fn cut_impuls(ch: &Vec<f32>) -> Vec<f32> {
 pub fn del_isoline(ch: &Vec<f32>) -> Vec<f32> {
     let mut out = ch.to_owned();
     let len_ch = out.len();
-    let len_win: usize = 90; // = 120
+    let len_win: usize = 190; // = 90
     let half_win: usize = len_win / 2;
     for i in (half_win..len_ch - half_win).step_by(3) {
         let mut win: Vec<f32> = ch[i - half_win..i + half_win].to_vec();
@@ -492,7 +492,7 @@ pub fn get_coef_p(leads: &Leads, time_param: &TimeParam) -> Vec<f32> {
                 sum_p3 = (sum_p1 + sum_p2) / 2.0;
             }
         }
-        let sum_buf = sum_p1 * sum_p2 * sum_p3 * 0.3; // * 0.3;
+        let sum_buf = sum_p1 * sum_p2 * sum_p3 + 10.0; // * 0.3;
         out[i - 2] = sum_buf;
     }
     let max_out: f32 = out.iter().fold(f32::MIN, |a, b| a.max(*b));
@@ -504,10 +504,10 @@ pub fn get_coef_p(leads: &Leads, time_param: &TimeParam) -> Vec<f32> {
     out[1] = out[2];
     out[out_len - 2] = out[out_len - 3];
     out[out_len - 1] = out[out_len - 3];
-    out = out.iter().map(|&x| x * 0.9 + 3.0).collect();
-    out = step_moving_average(&out, 20);
-    out = moving_average(&out, 40);
-    out = moving_average(&out, 20);
+    out = out.iter().map(|&x| x * 0.35 + 1.5).collect();
+    out = step_moving_average(&out, 40); // 20
+    out = moving_average(&out, 80); // 40
+    out = moving_average(&out, 60); // 20
     out
 }
 
@@ -517,7 +517,7 @@ pub fn get_coef_fibr(coef_p: &Vec<f32>, coef_disp: &Vec<f32>, time_param: &TimeP
         let x = time_param.threshold[i];
         out[i] = coef_p[i] * coef_disp[i] * ((-((x - 110.0) / 150.0).powi(2)).exp() * 0.75 + 0.65); // exp() * 0.8 + 0.65
     }
-    out = out.iter().map(|&x| x * 0.7).collect();
+    out = out.iter().map(|&x| x * 0.65).collect();
     out = truncate_win2(&out, 0.85, 160);
     out = truncate_win2(&out, 0.75, 80);
     out
@@ -609,10 +609,10 @@ pub fn find_local_extrema(data: &Vec<f32>) -> (Vec<usize>, Vec<f32>) {
             vec_val_extrema.push(data[i]);
         }
     }
-    if vec_ind_extrema.len() == 0 {
-        vec_ind_extrema.push(0);
-        vec_val_extrema.push(0.0);
-    }
+    // if vec_ind_extrema.len() == 0 {
+    //     vec_ind_extrema.push(0);
+    //     vec_val_extrema.push(0.0);
+    // }
     (vec_ind_extrema, vec_val_extrema)
 }
 

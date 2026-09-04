@@ -26,11 +26,11 @@ impl Zubp {
         let mut vec_amp_p: Vec<f32> = vec![];
 
         for ind in &time_param.inds_min_diff {
-            let coef = 0.31 + time_param.intervals[*ind] / 2000.0;
+            let coef = 0.31 + time_param.intervals[*ind] / 2000.0; // 0.31 +
             let len_pr: i32 = (time_param.intervals[*ind] * coef) as i32; // *0.45
             let start = (time_param.r_pos[*ind] - len_pr) as usize;
             let stop = (time_param.r_pos[*ind] - 10) as usize;
-            debug!("start, stop: {}, {}", start, stop);
+            // debug!("start, stop: {}, {}", start, stop);
 
             let fragment = lead[start..stop].to_vec();
             let (amp_p, ind_p) = self.get_amp_ind_p(&fragment);
@@ -78,7 +78,16 @@ impl Zubp {
             fragment[i] = fragment[i] - isoline[i];
         }
         let (vec_ind_extrema, vec_val_extrema) = find_local_extrema(&fragment);
-        if vec_val_extrema.len() >= 1 {
+        if vec_val_extrema.len() == 1 {
+            let (val_max, ind_max) = find_max(&fragment);
+            if ind_max == 0 || ind_max == fragment.len() - 1 {
+                amp_p = 0.0;
+            } else {
+                amp_p = val_max;
+            }
+        } else if vec_val_extrema.len() == 2 {
+            amp_p = (vec_val_extrema[0] - vec_val_extrema[1]).abs();
+        } else if vec_val_extrema.len() > 2 {
             let (val_max_extrema, ind_max_extrema) = find_max(&vec_val_extrema);
             ind_p = vec_ind_extrema[ind_max_extrema];
             if ind_max_extrema == 0 {
@@ -105,18 +114,18 @@ impl Zubp {
         for i in 0..self.presence_pr.len() {
             if time_param.r_pos[i] < lead.len() as i32 {
                 let start = (time_param.r_pos[i] - self.presence_pr[i] - w) as usize; // -15
-                let stop = if (self.presence_pr[i] - w) > 10 {
+                let stop = if (self.presence_pr[i] - w) > 9 {
                     (time_param.r_pos[i] - self.presence_pr[i] + w) as usize
                 } else {
-                    (time_param.r_pos[i] - 10) as usize
+                    (time_param.r_pos[i] - 9) as usize
                 };
                 let fragment = lead[start..stop].to_vec();
                 if time_param.chars[i] != 'N' {
                     p[i] = 1.0;
                 } else {
                     let (amp_p, _ind_p) = self.get_amp_ind_p(&fragment);
-                    if amp_p > self.mean_amp_p * 0.3 {
-                        //0.2
+                    if amp_p > self.mean_amp_p * 0.45 {
+                        //0.3
                         p[i] = 1.0;
                     }
                 }

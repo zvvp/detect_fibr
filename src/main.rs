@@ -141,6 +141,8 @@ fn main() {
     trs.write_npy(&mut file).unwrap();
 
     let r_pos = &time_param.r_pos;
+    let mut file = File::create("r_pos.npy").unwrap();
+    r_pos.clone().write_npy(&mut file).unwrap();
     let coef_p = get_coef_p(&leads, &time_param);
     let mut file = File::create("coef_p.npy").unwrap();
     coef_p.clone().write_npy(&mut file).unwrap();

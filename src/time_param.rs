@@ -85,15 +85,9 @@ impl TimeParam {
     fn get_clear_intervals(&mut self) {
         let mut intervals = self.intervals.clone();
         for i in 2..self.chars.len() - 2 {
-            let mean_intervals = (intervals[i - 2]
-                + intervals[i - 1]
-                // + intervals[i]
-                // + intervals[i + 1]
-                + intervals[i + 2])
-                / 3.0;
+            let mean_intervals = (intervals[i - 2] + intervals[i - 1] + intervals[i + 2]) / 3.0;
             let k: f32 = 0.1;
             if self.chars[i] == 'V' {
-                // let mean_intervals = (intervals[i] + intervals[i + 1]) / 2.0;
                 intervals[i] = (intervals[i] - mean_intervals) * k + mean_intervals;
                 intervals[i + 1] = (intervals[i + 1] - mean_intervals) * k + mean_intervals;
             } else if (self.intervals[i - 1] - self.intervals[i + 1]).abs()
@@ -101,19 +95,28 @@ impl TimeParam {
                 < 30.0
                 && (self.intervals[i] - self.intervals[i + 1]).abs() > 50.0
             {
-                intervals[i - 1] = (intervals[i - 1] - mean_intervals) * k + mean_intervals;
-                intervals[i] = (intervals[i] - mean_intervals) * k + mean_intervals;
-                intervals[i + 1] = (intervals[i + 1] - mean_intervals) * k + mean_intervals;
-                intervals[i + 2] = (intervals[i + 2] - mean_intervals) * k + mean_intervals;
-            } else if ((self.intervals[i + 1] - self.intervals[i])
-                - (self.intervals[i - 1] - self.intervals[i + 2]).abs())
-                > 70.0
+                intervals[i - 1] = (self.intervals[i - 1] - mean_intervals) * k + mean_intervals;
+                intervals[i] = (self.intervals[i] - mean_intervals) * k + mean_intervals;
+                intervals[i + 1] = (self.intervals[i + 1] - mean_intervals) * k + mean_intervals;
+                intervals[i + 2] = (self.intervals[i + 2] - mean_intervals) * k + mean_intervals;
+            } else if (self.intervals[i + 1]
+                - self.intervals[i]
+                - ((self.intervals[i - 1] - mean_intervals).abs()
+                    + (self.intervals[i + 2] - mean_intervals).abs())
+                > 70.0)
+                && self.intervals[i] - self.intervals[i - 1] < 0.0
+                && self.intervals[i + 1] - self.intervals[i] > 0.0
+                && self.intervals[i + 2] - self.intervals[i + 1] < 0.0
+                && (self.intervals[i - 1] - self.intervals[i + 2]).abs() < 40.0
             {
-                intervals[i] = (intervals[i] - mean_intervals) * k + mean_intervals;
-                intervals[i + 1] = (intervals[i + 1] - mean_intervals) * k + mean_intervals;
-            } else if (intervals[i] - mean_intervals).abs() > 130.0 {
-                intervals[i] = (intervals[i] - mean_intervals) * k + mean_intervals;
-                intervals[i + 1] = (intervals[i + 1] - mean_intervals) * k + mean_intervals;
+                intervals[i] = (self.intervals[i] - mean_intervals) * k + mean_intervals;
+                intervals[i + 1] = (self.intervals[i + 1] - mean_intervals) * k + mean_intervals;
+            } else if (self.intervals[i] - mean_intervals).abs() > 150.0 {
+                intervals[i] = (self.intervals[i] - mean_intervals) * 0.4 + mean_intervals;
+            } else if self.intervals[i] < 70.0 {
+                intervals[i] = (self.intervals[i] - mean_intervals) * 0.5 + mean_intervals;
+            } else if self.intervals[i] > 400.0 {
+                intervals[i] = (self.intervals[i] - mean_intervals) * 0.5 + mean_intervals;
             }
         }
         self.clear_intervals = intervals;
