@@ -319,7 +319,7 @@ pub fn cut_impuls(ch: &Vec<f32>) -> Vec<f32> {
 pub fn del_isoline(ch: &Vec<f32>) -> Vec<f32> {
     let mut out = ch.to_owned();
     let len_ch = out.len();
-    let len_win: usize = 190; // = 90
+    let len_win: usize = 90; // = 190
     let half_win: usize = len_win / 2;
     for i in (half_win..len_ch - half_win).step_by(3) {
         let mut win: Vec<f32> = ch[i - half_win..i + half_win].to_vec();

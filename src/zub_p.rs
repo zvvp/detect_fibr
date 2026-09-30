@@ -73,10 +73,10 @@ impl Zubp {
         let mut amp_p: f32 = 0.0;
         let mut ind_p: usize = 0;
         let mut fragment = my_filtfilt(&b, &a, &fragment);
-        let isoline = my_filtfilt(&bi, &ai, &fragment);
-        for i in 0..fragment.len() {
-            fragment[i] = fragment[i] - isoline[i];
-        }
+        // let isoline = my_filtfilt(&bi, &ai, &fragment);
+        // for i in 0..fragment.len() {
+        //     fragment[i] = fragment[i] - isoline[i];
+        // }
         let (vec_ind_extrema, vec_val_extrema) = find_local_extrema(&fragment);
         if vec_val_extrema.len() == 1 {
             let (val_max, ind_max) = find_max(&fragment);
@@ -124,7 +124,8 @@ impl Zubp {
                     p[i] = 1.0;
                 } else {
                     let (amp_p, _ind_p) = self.get_amp_ind_p(&fragment);
-                    if amp_p > self.mean_amp_p * 0.45 {
+                    if amp_p > self.mean_amp_p * 0.15 {
+                        // * 0.45
                         //0.3
                         p[i] = 1.0;
                     }
